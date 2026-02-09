@@ -1,10 +1,6 @@
 # AGENTS.md
 
-Instructions for AI agents working on this codebase.
-
-## Stack
-
-Bun 1.x, TypeScript 5.x, React 18, Hono, xterm.js, Zustand, Tailwind.
+- Bun 1.x, TypeScript 5.x, React 18, Hono, xterm.js, Zustand, Tailwind.
 
 ## Commands
 
@@ -18,16 +14,6 @@ bun run test       # unit tests
 
 Run `bun run lint && bun run typecheck && bun run test` after changes.
 
-## Structure
-
-```
-src/server/     Hono backend, WebSocket, tmux/pty management, log parsing
-src/client/     React frontend, xterm.js terminal, Zustand stores
-src/shared/     Shared types
-```
-
-- Data directory: `~/.agentboard/` contains `agentboard.db` (session data) and `agentboard.log`
-
 ## How It Works
 
 - Single tmux session (default: `agentboard`) with one window per project
@@ -35,12 +21,17 @@ src/shared/     Shared types
 - Parses Claude/Codex JSONL logs from `~/.claude/projects/` and `~/.codex/sessions/` for status
 - Status: unknown -> working -> waiting (derived from log events)
 
-## Key Files
+## Structure
 
-- `src/server/SessionManager.ts` - tmux window discovery, log parsing, status detection
-- `src/server/index.ts` - Hono routes, WebSocket handling
-- `src/client/App.tsx` - main UI, keyboard shortcuts
-- `src/client/components/Terminal.tsx` - xterm.js wrapper
+- src/server/     Hono backend, WebSocket, tmux/pty management, log parsing
+  - `src/server/SessionManager.ts` - tmux window discovery, log parsing, status detection
+  - `src/server/index.ts` - Hono routes, WebSocket handling
+- src/client/     React frontend, xterm.js terminal, Zustand stores
+  - `src/client/App.tsx` - main UI, keyboard shortcuts
+  - `src/client/components/Terminal.tsx` - xterm.js wrapper
+- src/shared/     Shared types
+
+- Data directory: `~/.agentboard/` contains `agentboard.db` (session data) and `agentboard.log`
 
 ## Git
 
@@ -64,5 +55,5 @@ src/shared/     Shared types
 
 ## UI Testing
 
-Use the `dev-browser` skill for testing web UI changes. Headless browser
+- Use the `dev-browser` skill for testing web UI changes. Headless browser
 automation with Playwright. Start server, take screenshots, verify DOM state.

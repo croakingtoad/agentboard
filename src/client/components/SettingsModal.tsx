@@ -682,7 +682,7 @@ export default function SettingsModal({
               <div>
                 <div className="text-sm text-primary">WebGL Acceleration</div>
                 <div className="text-[10px] text-muted">
-                  GPU rendering for better performance. Disable if you see flickering.
+                  GPU rendering for better performance. Turn off if text looks fuzzy or flickering.
                 </div>
               </div>
               <Switch

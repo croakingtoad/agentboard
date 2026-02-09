@@ -3,19 +3,8 @@
  * Uses a simple hash to select from a curated palette of colors.
  */
 
-// Curated palette of distinct hues that are visually different from each other
-const PROJECT_HUES = [
-  220,  // blue
-  145,  // green
-  280,  // purple
-  30,   // orange
-  350,  // red/rose
-  185,  // cyan
-  315,  // magenta/pink
-  75,   // lime/yellow-green
-  255,  // indigo
-  10,   // red-orange
-]
+// Generate hue directly from hash - full 360° range
+const HUE_COUNT = 360
 
 /**
  * Simple string hash function for consistent color selection.
@@ -32,20 +21,13 @@ function hashString(str: string): number {
 
 /**
  * Get color styles for a project name.
- * Text is muted gray with a subtle color tint, background is the colored pill.
+ * Sets a --badge-hue custom property; actual colors are theme-aware via CSS.
  */
-export function getProjectColorStyle(projectName: string): {
-  backgroundColor: string
-  color: string
-} {
-  const index = hashString(projectName) % PROJECT_HUES.length
-  const hue = PROJECT_HUES[index]
+export function getProjectColorStyle(projectName: string): Record<string, string> {
+  const hue = hashString(projectName) % HUE_COUNT
 
   return {
-    // Colored pill background
-    backgroundColor: `hsl(${hue} 60% 50% / 0.2)`,
-    // Muted text with subtle color tint (low saturation, similar lightness to --text-muted #737373 ≈ 45%)
-    color: `hsl(${hue} 20% 55%)`,
+    '--badge-hue': `${hue}`,
   }
 }
 
@@ -53,6 +35,5 @@ export function getProjectColorStyle(projectName: string): {
  * Get the hue for a project name (useful for related styling).
  */
 export function getProjectHue(projectName: string): number {
-  const index = hashString(projectName) % PROJECT_HUES.length
-  return PROJECT_HUES[index]
+  return hashString(projectName) % HUE_COUNT
 }

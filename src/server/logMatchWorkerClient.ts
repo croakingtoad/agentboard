@@ -89,10 +89,9 @@ export class LogMatchWorkerClient {
     this.readyResolve = null
     this.readyPromise = null
     this.failAll(new Error('Log match worker is disposed'))
-    if (this.worker) {
-      this.worker.terminate()
-      this.worker = null
-    }
+    // Don't call worker.terminate() — it triggers a segfault in compiled Bun binaries
+    // (known Bun bug BUN-118B). The worker will be cleaned up on process exit.
+    this.worker = null
   }
 
   private spawnWorker(): void {
@@ -114,7 +113,11 @@ export class LogMatchWorkerClient {
       }, READY_TIMEOUT_MS)
     })
 
-    const worker = new Worker(new URL('./logMatchWorker.ts', import.meta.url).href, {
+    // Compiled Bun binaries need string paths; dev mode needs URL resolution
+    const workerPath = import.meta.url.includes('$bunfs')
+      ? './logMatchWorker.ts'
+      : new URL('./logMatchWorker.ts', import.meta.url).href
+    const worker = new Worker(workerPath, {
       type: 'module',
     })
     worker.onmessage = (event) => {
@@ -161,9 +164,7 @@ export class LogMatchWorkerClient {
 
   private restartWorker(): void {
     if (this.disposed) return
-    if (this.worker) {
-      this.worker.terminate()
-    }
+    // Don't call worker.terminate() — abandon the old worker instead
     this.worker = null
     this.spawnWorker()
   }

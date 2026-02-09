@@ -112,18 +112,20 @@ export class SessionRefreshWorkerClient {
   dispose(): void {
     this.disposed = true
     this.failAll(new Error('Session refresh worker disposed'))
-    if (this.worker) {
-      this.worker.terminate()
-      this.worker = null
-    }
+    // Don't call worker.terminate() — it triggers a segfault in compiled Bun binaries
+    // (known Bun bug BUN-118B). The worker will be cleaned up on process exit.
+    this.worker = null
   }
 
   private spawnWorker(): void {
     if (this.disposed) return
-    const worker = new Worker(
-      new URL('./sessionRefreshWorker.ts', import.meta.url).href,
-      { type: 'module' }
-    )
+    // Compiled Bun binaries need string paths; dev mode needs URL resolution
+    const workerPath = import.meta.url.includes('$bunfs')
+      ? './sessionRefreshWorker.ts'
+      : new URL('./sessionRefreshWorker.ts', import.meta.url).href
+    const worker = new Worker(workerPath, {
+      type: 'module',
+    })
     worker.onmessage = (event) => {
       this.handleMessage(event.data as RefreshWorkerResponse)
     }
@@ -142,9 +144,7 @@ export class SessionRefreshWorkerClient {
 
   private restartWorker(): void {
     if (this.disposed) return
-    if (this.worker) {
-      this.worker.terminate()
-    }
+    // Don't call worker.terminate() — abandon the old worker instead
     this.worker = null
     this.spawnWorker()
   }

@@ -6,6 +6,12 @@ const DEFAULT_PROJECT_DIR = '~/Documents/GitHub'
 const DEFAULT_COMMAND = 'claude'
 const MAX_PRESETS = 50
 
+// WebGL renderer produces blurry text on Safari Retina (texture atlas DPR bug)
+const isSafariDesktop = typeof navigator !== 'undefined'
+  && /^((?!chrome|android).)*safari/i.test(navigator.userAgent)
+  && !/iPhone|iPad|iPod/.test(navigator.userAgent)
+const DEFAULT_WEBGL = !(isSafariDesktop && (typeof devicePixelRatio !== 'undefined' ? devicePixelRatio : 1) > 1)
+
 // Terminal font configuration
 export type FontOption = 'jetbrains-mono' | 'system' | 'custom'
 
@@ -179,7 +185,7 @@ export const useSettingsStore = create<SettingsState>()(
         set({ sessionSortDirection: direction }),
       manualSessionOrder: [],
       setManualSessionOrder: (order) => set({ manualSessionOrder: order }),
-      useWebGL: true,
+      useWebGL: DEFAULT_WEBGL,
       setUseWebGL: (enabled) => set({ useWebGL: enabled }),
       fontSize: 13,
       setFontSize: (size) => set({ fontSize: Math.max(6, Math.min(24, size)) }),
