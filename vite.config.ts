@@ -4,9 +4,12 @@ import path from 'node:path'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const allowedHosts = env.VITE_ALLOWED_HOSTS
-    ? env.VITE_ALLOWED_HOSTS.split(',').map((h) => h.trim())
-    : []
+  const allowedHostsRaw = env.VITE_ALLOWED_HOSTS
+  const allowedHosts = allowedHostsRaw === 'all'
+    ? 'all'
+    : allowedHostsRaw
+      ? allowedHostsRaw.split(',').map((h) => h.trim())
+      : []
 
   return {
     plugins: [react()],
